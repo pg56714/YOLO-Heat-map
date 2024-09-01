@@ -47,7 +47,8 @@ def generate_frames(path_x="", conf_=0.25, dt_obj=dt_obj):
         global detectedObjects
         detectedObjects = str(dpf)
 
-        socketio.start_background_task(send_socketio_data, dpf)
+        # socketio.start_background_task(send_socketio_data, dpf)
+        send_socketio_data(dpf)
 
         frame = buffer.tobytes()
         yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
@@ -79,12 +80,6 @@ def video():
         ),
         mimetype="multipart/x-mixed-replace; boundary=frame",
     )
-
-
-@app.route("/detectionCount", methods=["GET"])
-def detect_fun():
-    global detectedObjects
-    return jsonify(detectCount=detectedObjects)
 
 
 @socketio.on("connect")
