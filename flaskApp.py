@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Response, jsonify, request, session
+from flask import Flask, render_template, Response, session
 from flask_wtf import FlaskForm
 from wtforms import FileField, SubmitField, IntegerRangeField
 from werkzeug.utils import secure_filename
@@ -33,9 +33,6 @@ class UploadFileForm(FlaskForm):
     submit = SubmitField("Run")
 
 
-detectedObjects = 0
-
-
 def send_socketio_data(dpf):
     socketio.emit("update_data", {"detected_objects": dpf})
 
@@ -44,10 +41,7 @@ def generate_frames(path_x="", conf_=0.25, dt_obj=dt_obj):
     yolo_output = video_detection(path_x, conf_, dt_obj)
     for detection_, dpf in yolo_output:
         ref, buffer = cv2.imencode(".jpg", detection_)
-        global detectedObjects
-        detectedObjects = str(dpf)
 
-        # socketio.start_background_task(send_socketio_data, dpf)
         send_socketio_data(dpf)
 
         frame = buffer.tobytes()
